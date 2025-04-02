@@ -2,6 +2,7 @@ package com.application.school.auth;
 
 
 import com.application.school.dto.ProfessorDto;
+import com.application.school.dto.ProfessorRequestDto;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.ResponseEntity;
@@ -28,7 +29,7 @@ public class AuthenticationController {
     }
 
     @PostMapping("/authenticate")
-    public ResponseEntity<AuthenticationResponse> authenticate(@RequestBody AuthenticationResponse request){
+    public ResponseEntity<AuthenticationResponse> authenticate(@RequestBody ProfessorRequestDto request){
         return ResponseEntity.ok().body(authenticationService.authenticate(request));
     }
 

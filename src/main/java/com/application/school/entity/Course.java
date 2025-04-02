@@ -1,5 +1,6 @@
 package com.application.school.entity;
 
+import com.application.school.enums.CourseType;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -18,7 +19,8 @@ public class Course {
     private Long id;
 
     @Column(name = "name")
-    private String name;
+    @Enumerated(EnumType.STRING)
+    private CourseType course;
 
     @OneToMany(mappedBy = "course")
     private List<Student> students;
