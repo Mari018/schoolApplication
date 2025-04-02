@@ -1,4 +1,4 @@
-package com.application.school.exception;
+package com.application.school.exception.exceptionHndler;
 
 import lombok.*;
 
