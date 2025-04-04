@@ -24,13 +24,11 @@ public class StudentController {
     }
 
     @GetMapping(path = "/student")
-    @PreAuthorize("@authorized.hasRole(\"ADMIN\")")
     public ResponseEntity<List<StudentDto>> getStudents(){
         return ResponseEntity.ok().body(studentService.getStudents());
     }
 
     @GetMapping(path = "/student/{id}")
-    @PreAuthorize("@authorized.hasRole(\"ADMIN\")")
     public ResponseEntity<StudentDto> getStudent(Long id){
 
         return ResponseEntity.ok().body(studentService.getStudent(id));
@@ -38,7 +36,6 @@ public class StudentController {
 
 
     @PostMapping(path = "/student")
-    @PreAuthorize("@authorized.hasRole(\"ADMIN\")")
     public ResponseEntity<Long> addStudent(@Valid @RequestBody StudentDto studentDto){
 
         return ResponseEntity.ok().body(studentService.addStudent(studentDto));
