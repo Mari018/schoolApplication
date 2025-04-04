@@ -9,8 +9,10 @@ import com.application.school.enums.TokenType;
 import com.application.school.exception.ProfessorNotFoundException;
 import com.application.school.repository.ProfessorRepository;
 import com.application.school.repository.TokenRepository;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.User;
@@ -18,7 +20,9 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.util.Collections;
+import java.util.List;
 
 @Service
 public class AuthenticationService {
@@ -76,7 +80,7 @@ public class AuthenticationService {
 
         String jwtToken = jwtService.generateToken(userDetails);
         String refreshToken = jwtService.generateRefreshToken(userDetails);
-        revokeAllUserTokens(userDetails);
+        revokeAllUserTokens(professor);
         saveUserToken(professor, jwtToken);
 
         return AuthenticationResponse.builder()
@@ -97,12 +101,54 @@ public class AuthenticationService {
         tokenRepository.save(token);
     }
 
-    public void refreshToken(HttpServletRequest request, HttpServletResponse response) {
+    public void refreshToken(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        final String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
+        final String refreshToken;
+        final String professorEmail;
 
+        if(authHeader != null || !authHeader.startsWith("Bearer ")){
+            return;
+        }
+
+
+        refreshToken = authHeader.substring(7);
+        professorEmail = jwtService.extractUsername(refreshToken);
+
+        if (professorEmail != null) {
+           Professor professor = repository.findByEmail(professorEmail).orElseThrow();
+            UserDetails userDetails = new User(
+                    professor.getEmail(),
+                    professor.getPassword(),
+                    Collections.emptyList()
+            );
+            if (jwtService.isTokenValid(refreshToken,userDetails)){
+                String accessToken = jwtService.generateToken(userDetails);
+                revokeAllUserTokens(professor);
+                saveUserToken(professor,accessToken);
+                AuthenticationResponse authResponse = AuthenticationResponse.builder()
+                        .accessToken(accessToken)
+                        .refreshToken(refreshToken)
+                        .build();
+
+                new ObjectMapper().writeValue(response.getOutputStream(), authResponse);
+            }
+        }
 
     }
 
-    private void revokeAllUserTokens(UserDetails userDetails) {
+    private void revokeAllUserTokens(Professor professor) {
+        List<Token> validToken = tokenRepository.findAllValidTokenByUser(professor.getId());
+
+        if(validToken.isEmpty()){
+            return;
+        }
+
+        validToken.forEach(token -> {
+            token.setExpired(true);
+            token.setRevoked(true);
+        });
+
+        tokenRepository.saveAll(validToken);
 
     }
 }
