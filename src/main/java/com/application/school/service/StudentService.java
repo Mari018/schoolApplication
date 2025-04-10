@@ -32,8 +32,10 @@ public class StudentService {
 
 
     public StudentDto getStudent(Long id) {
-        LOGGER.error("student with id: .{} don't exist", id);
-        Student student = this.studentRepository.findById(id).orElseThrow(()-> new StudentNotFoundException("Student not found"));
+        Student student = this.studentRepository.findById(id).orElseThrow(()-> {
+            LOGGER.error("student with id: .{} don't exist", id);
+            return new StudentNotFoundException("Student not found");
+        });
 
         LOGGER.info("return a user by their id. {}", student);
         return StudentMapper.INSTANCE.studentToStudentDto(student);

@@ -24,8 +24,8 @@ public class StudentSubject {
     @JoinColumn(name = "subject_id")
     private Subject subject;
 
-
     private float grade;
 
     private String obs;
+    
 }

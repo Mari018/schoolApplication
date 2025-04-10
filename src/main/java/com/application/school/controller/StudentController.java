@@ -4,11 +4,7 @@ package com.application.school.controller;
 import com.application.school.dto.StudentDto;
 import com.application.school.service.StudentService;
 import jakarta.validation.Valid;
-import org.springframework.boot.autoconfigure.web.servlet.WebMvcProperties;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.stereotype.Component;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -40,6 +36,7 @@ public class StudentController {
 
         return ResponseEntity.ok().body(studentService.addStudent(studentDto));
     }
+
 
 
 }
